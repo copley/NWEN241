@@ -1,0 +1,120 @@
+def add_vectors(vector_1, vector_2):
+    """Returns a list object representing the result of adding two vectors together.
+ 
+      Arguments:
+      vector_1 -- list representing first vector
+      vector_2 -- list representing second vector
+ 
+      Error checking:
+      Both arguments must be of type list.
+      Both vectors must of the same length.
+      Only vector elements of type int can be added together.
+   """
+    if not isinstance(vector_1, list) or not isinstance(vector_2, list):
+        if not isinstance(vector_1, list):
+            print("Error: first argument is not a list")
+        if not isinstance(vector_2, list):
+            print("Error: second argument is not a list")
+        return None
+ 
+    if len(vector_1) != len(vector_2):
+        print("Error: lengths of the two vectors are different")
+        return None
+ 
+    vector_3 = len(vector_1)*[0]
+ 
+    for x, y in enumerate(vector_1):
+        if (isinstance(y, int) and isinstance(vector_2[x], int)) or \
+           (isinstance(y, float) and isinstance(vector_2[x], float)):
+            vector_3[x] = y + vector_2[x]
+        else:
+            print("Error: attempted to add incompatible {0} to {1}".format(y, vector_2[x]))
+            return None
+ 
+    return vector_3
+ 
+ 
+def print_frequency(some_text):
+    """Prints a table of letter frequencies within a string.
+ 
+      Non-letter characters are ignored.
+      Table is sorted alphabetically.
+      Letter case is ignored.
+      Two blank spaces will separate the letter from its count.
+ 
+      Returns None in all cases.
+ 
+      Argument:
+      some_text -- string containing the text to be analysed.
+ 
+      Error checking:
+      The argument must be a string object.
+   """
+    if not isinstance(some_text, str):
+        print("Error: only accepts strings")
+        return None
+ 
+    alpha_store = {}
+ 
+    for char in some_text:
+        if char.isalpha():
+            if char.lower() in alpha_store:
+                alpha_store[char.lower()] += 1
+            else:
+                alpha_store[char.lower()] = 1
+ 
+    for char in sorted(alpha_store):
+        print("{0}  {1}".format(char, alpha_store[char]))
+ 
+ 
+def verbing(some_text):
+    """Returns a string where the each word has ing added to it if it is 3 or
+       more characters or length and ly to shorter words.
+ 
+      Argument:
+      some_text -- string containing the text to be analysed.
+ 
+      Error checking:
+      The argument must be a string object.
+   """
+    if not isinstance(some_text, str):
+        print("Error: only accepts strings")
+        return None
+ 
+    out_str = ""
+    for word in some_text.split(' '):
+        out_str += word
+        if word:
+            if len(word) >= 3:
+                out_str += "ing"
+            else:
+                out_str += "ly"
+            out_str += " "
+    return out_str[:-1]      # Get rid of the extraneous space at the end
+ 
+def verbing_file(file_name):
+    """Returns the contents of a given file after applying the verbing function
+       to each line in the file.
+ 
+      Argument:
+      file_name -- name of the file (assumed to exist in same directory from where the
+                   python script is executed.
+ 
+      Error checking:
+      The argument must be a string object.
+      File must exist and be readable (note no need to distinguish these cases).    
+   """
+    if not isinstance(file_name, str):
+        print("Error: only accepts strings")
+        return None
+ 
+    try:
+        with open(file_name, 'r') as f:
+            new_str = ""
+            for line in f.read().splitlines():
+                new_str += verbing(line) + '\n'
+            return new_str
+ 
+    except IOError:
+        print("Error reading from file {0}".format(file_name))
+        return None
