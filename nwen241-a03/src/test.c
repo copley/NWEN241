@@ -1,7 +1,7 @@
 /*
  ============================================================================
- Name        : NWEN241-TESTS.c
- Author      : 
+ Name        : SAMPLE_C.c
+ Author      :
  Version     :
  Copyright   : Your copyright notice
  Description : Hello World in C, Ansi-style
@@ -12,6 +12,6 @@
 #include <stdlib.h>
 
 int main(void) {
-	puts("!!!Hello World!!!"); /* prints !!!Hello World!!! */
-	return 0;
+	puts("!!!Hello World 93487439857!!!"); /* prints !!!Hello World!!! */
+	return EXIT_SUCCESS;
 }
