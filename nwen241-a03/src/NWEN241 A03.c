@@ -16,5 +16,6 @@ int main(void) {
 	scanf("%d",&n);
 	printf("You have entered %d numbers to be entered\n",n);
 	return 0;
-//	return EXIT_SUCCESS;
+
+	//	return EXIT_SUCCESS;
 }
