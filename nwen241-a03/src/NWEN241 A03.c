@@ -9,6 +9,12 @@
 #include <stdlib.h>
 
 int main(void) {
-	printf("!!!Hello World sdsdsdsds!!!"); // something
-	return EXIT_SUCCESS;
+
+	int n;
+
+	printf("Number of integers to be entered: "); // something
+	scanf("%d",&n);
+	printf("You have entered %d numbers to be entered\n",n);
+	return 0;
+//	return EXIT_SUCCESS;
 }
