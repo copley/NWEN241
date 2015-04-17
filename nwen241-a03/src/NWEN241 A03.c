@@ -1,10 +1,7 @@
 /*
  ============================================================================
- Name        : SAMPLE_C.c
- Author      :
- Version     :
- Copyright   : Your copyright notice
- Description : Hello World in C, Ansi-style
+ Author      : Diego Trazzi
+ Description : A program that finds the smallest of several integers entered by user
  ============================================================================
  */
 
@@ -12,6 +9,6 @@
 #include <stdlib.h>
 
 int main(void) {
-	puts("!!!Hello World 93487439857!!!"); /* prints !!!Hello World!!! */
+	printf("!!!Hello World sdsdsdsds!!!"); // something
 	return EXIT_SUCCESS;
 }
