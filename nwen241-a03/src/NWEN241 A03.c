@@ -17,5 +17,4 @@ int main(void) {
 	printf("You have entered %d numbers to be entered\n",n);
 	return 0;
 
-	//	return EXIT_SUCCESS;
 }
