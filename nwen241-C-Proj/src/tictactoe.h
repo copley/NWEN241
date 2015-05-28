@@ -1,6 +1,6 @@
 /* Useful defines */
 const int TRUE = 1;
-const int FALSE=0;
+const int FALSE = 0;
 
 /* Board */
 const int HUMAN = -1;
