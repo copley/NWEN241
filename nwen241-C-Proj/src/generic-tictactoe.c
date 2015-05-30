@@ -24,7 +24,7 @@ char tokenstr(int token);
 void print_result();
 
 //int board[3][3]; // our tic tac toe board
-int **board; // 2D Array of board game
+//int **board; // 2D Array of board game
 int winner; // who has won the game
 TicTacToe game;  // TicTacToe game
 
@@ -43,7 +43,6 @@ int main(void) {
 		print_game();
 		do {
 			done = player_move();
-	printf("333333333#########");
 		} while (!done); // loop until valid move
 		if (check() != FALSE)
 			break; // was a winner or a draw
@@ -63,17 +62,17 @@ void init_game() {
 	int i, j;
 
 	// initialise the 2D array for the board, first allocate mem for colums, then allocate memory for each row
-	board = (int **)malloc(sizeof(int *)*game.size);
+	game.board = malloc(sizeof(int *)*game.size);
 	int x = 0;
 	for (; x < game.size; x++){
-		board[x] = (int *)malloc(sizeof(int)*game.size);
+		game.board[x] = malloc(sizeof(int)*game.size);
 	}
 
 	// now initialise it
 	for (i = 0; i < game.size; i++)
 		for (j = 0; j < game.size; j++)
 			// set to empty of tokens
-			board[i][j] = NONE;
+			game.board[i][j] = NONE;
 }
 
 /* Get a player's move. */
@@ -88,15 +87,14 @@ int player_move() {
 	x--;
 	y--;
 
-	if (board[x][y] != NONE) {
+	if (game.board[x][y] != NONE) {
 		printf("Invalid move, try again.\n");
 		valid = FALSE;
 	} else {
-		board[x][y] = HUMAN;
+		game.board[x][y] = HUMAN;
 		valid = TRUE;
 	}
-	printf("\n board[%d][%d]:%d\n",x,y,board[x][y]);
-	printf("##########");
+//	printf("\n board[%d][%d]:%d\n",x,y,game.board[x][y]);
 	return valid;
 }
 
@@ -107,13 +105,13 @@ void computer_move() {
 	cx = cy = -1;
 	for (i = 0; i < game.size; i++) {
 		for (j = 0; j < game.size; j++)
-			if (board[i][j] == NONE) {
+			if (game.board[i][j] == NONE) {
 				cx = i;
 				cy = j;
 				break;
 			}
 		if (cx != -1) {
-			board[cx][cy] = COMPUTER;
+			game.board[cx][cy] = COMPUTER;
 			break;
 		}
 	}
@@ -136,7 +134,7 @@ void print_game() {
 //	printf("%d",game.size);
 	for (i = 0; i < game.size; i++) {
 		for (j = 0; j < game.size; j++) {
-			printf(" %c ", tokenstr(board[i][j]));
+			printf(" %c ", tokenstr(game.board[i][j]));
 		}
 		printf("\n");
 	}
@@ -147,67 +145,67 @@ void print_game() {
 /* return true (0) if so otherwise false */
 int check() {
 	int i, j;
-//	typedef enum {false, true} bool;
 	int isWinning = FALSE;
+	int count;
 
 	// loops though rows to check if there are n occurences of same seed
 	for (i = 0; i < game.size; i++) { /* check rows */
 		for (j = 0; j < game.size; j++){
-			if (board[i][j] != NONE &&  board[i][j] == board[i][j+1]) {
+			if (game.board[i][j] != NONE &&  game.board[i][j] == game.board[i][j+1]) {
 				isWinning = TRUE;
+				winner = game.board[i][j];
 			} else {
 				isWinning = FALSE;
 			}
 		}
-		//		if (board[i][0] != NONE && board[i][0] == board[i][1] && board[i][0] == board[i][2]) {
 	}
-	winner = board[i][j];
 	if (isWinning) return TRUE;
 
 	for (j = 0; j < game.size; j++) { /* check columns */
 		for (i=0; i < game.size; i++){
-			if (board[i][j] != NONE && board[i][j] == board[i+1][j]) {
+			if (game.board[i][j] != NONE && game.board[i][j] == game.board[i+1][j]) {
 				isWinning = TRUE;
+				winner = game.board[i][j];
 			} else {
 				isWinning = FALSE;
 			}
 		}
-		//		if (board[0][i] != NONE && board[0][i] == board[1][i] && board[0][i] == board[2][i]) {
 	}
-	winner = board[i][j];
 	if (isWinning) return TRUE;
 
-
 	/* test diagonals */
-	for (j = 0; j < game.size; j++) {
-		if (board[i][i] != NONE && board[i][i] == board[i+1][i+1]){
+	for (i = 0; i < game.size; i++) {
+		if (game.board[i][i] != NONE && game.board[i][i] == game.board[i+1][i+1]){
 			isWinning = TRUE;
+			winner = game.board[i][j];
 		} else {
 			isWinning = FALSE;
 		}
 	}
-	//	if (board[0][0] != NONE && board[0][0] == board[1][1] && board[1][1] == board[2][2]) {
-	winner = board[i][j];
-	return TRUE;
-//}
-//
-//	if (board[0][2] != NONE && board[0][2] == board[1][1] && board[1][1] == board[2][0]) {
-//		winner = board[0][2];
-//		return TRUE;
-//	}
-//
-//	/* test if out of space on the board */
-//	count = 0;
-//	for (i = 0; i < 3; i++) {
-//		for (j = 0; j < 3; j++) {
-//			if (board[i][j] == NONE)
-//				count++;
-//		}
-//	}
-//	if (count == 0) {
-//		winner = DRAW;
-//		return TRUE;
-//	}
+	if (isWinning) return TRUE;
+
+	for (j = game.size-1; j >= 0; j--) { /* check columns */
+		if (game.board[j][game.size-j] != NONE && game.board[j][game.size-j] == game.board[j-1][game.size-(j-1)]){
+			isWinning = TRUE;
+			winner = game.board[i][j];
+		} else {
+			isWinning = FALSE;
+		}
+	}
+	if (isWinning) return TRUE;
+
+	/* test if out of space on the board */
+	count = 0;
+	for (i = 0; i < game.size; i++) {
+		for (j = 0; j < game.size; j++) {
+			if (game.board[i][j] == NONE)
+				count++;
+		}
+	}
+	if (count == 0) {
+		winner = DRAW;
+		return TRUE;
+	}
 
 	// no-one and nor was there a draw
 	return FALSE;
