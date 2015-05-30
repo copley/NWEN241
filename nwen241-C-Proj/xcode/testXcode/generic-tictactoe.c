@@ -40,6 +40,8 @@ int main(void) {
     int i;
 
     int done;
+    int i;
+    
     do {
         print_game();
         do {
@@ -56,7 +58,11 @@ int main(void) {
     print_game(); /* show final positions */
     
     for (i=0; i<game.size; i++){
+<<<<<<< HEAD
       free(game.board[i]);
+=======
+        free(game.board[i]);
+>>>>>>> origin/master
     }
     
     free(game.board);
