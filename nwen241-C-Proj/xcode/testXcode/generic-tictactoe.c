@@ -39,6 +39,8 @@ int main(void) {
     init_game(); // initialise the board
     
     int done;
+    int i;
+    
     do {
         print_game();
         do {
@@ -53,6 +55,12 @@ int main(void) {
     
     print_result();
     print_game(); /* show final positions */
+    
+    for (i=0; i<game.size; i++){
+        free(game.board[i]);
+    }
+    
+    free(game.board);
     
     return 0;
 }
