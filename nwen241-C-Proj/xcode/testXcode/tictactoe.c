@@ -87,7 +87,7 @@ int player_move() {
 
 /* Get a move from the computer. */
 void computer_move() {
-	int done = FALSE;
+//	int done = FALSE;
 	int i, j, cx, cy;
 	cx = cy = -1;
 	for (i = 0; i < 3; i++) {
