@@ -9,10 +9,10 @@
 #include "tictactoe.h"
 
 typedef struct TicTacToe {
-    int size; // this is the size of the game board
+    int size; /* this is the size of the game board */
     int **board;
-    // this is the game board
-    int winner; // who won
+    /* this is the game board */
+    int winner; /* who won */
 } TicTacToe;
 
 int check();
@@ -37,7 +37,8 @@ int main(void) {
     printf("Ok Sir, generating new board size: %dx%d\n", game.size, game.size);
     
     init_game(); // initialise the board
-    
+    int i;
+
     int done;
     do {
         print_game();
@@ -53,6 +54,12 @@ int main(void) {
     
     print_result();
     print_game(); /* show final positions */
+    
+    for (i=0; i<game.size; i++){
+      free(game.board[i]);
+    }
+    
+    free(game.board);
     
     return 0;
 }
@@ -237,10 +244,6 @@ void print_result() {
     else if (winner == COMPUTER)
         printf("I won!!!!\n");
     else
-        printf("Draw :(\n");
-    
-//    free(game.board);
-    
-    //////// REMEMBER TO FREE THE MEMORY !!!!
+        printf("Draw :(\n");  
 }
 

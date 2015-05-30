@@ -220,7 +220,10 @@ void print_result() {
 	else
 		printf("Draw :(\n");
 
-
-	//////// REMEMBER TO FREE THE MEMORY !!!!
+	int i;
+	for(i=0;i<game.size;i++){
+		free(game.board[i]);
+	}
+	free(game.board);
 }
 
