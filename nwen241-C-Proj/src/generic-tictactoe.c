@@ -19,8 +19,10 @@ void init_game();
 int player_move();
 void computer_move();
 void print_game();
-char tokenstr(int token);
+char tokenstr(int);
 void print_result();
+int check_move(int, int);
+
 
 TicTacToe game;  // TicTacToe game
 
@@ -87,21 +89,29 @@ void init_game() {
 int player_move() {
     int x, y;
     int valid = FALSE;
-    
     printf("Enter coordinates (row,column) for your move: ");
     scanf("%d%*c%d", &y, &x);
-    
-    x--;
-    y--;
-    
-    if (game.board[x][y] != NONE) {
-        printf("Invalid move, try again.\n");
-        valid = FALSE;
-    } else {
-        game.board[x][y] = HUMAN;
-        valid = TRUE;
+    if (check_move(x,y)){
+    	x--;
+    	y--;
+    	if (game.board[x][y] != NONE) {
+    		printf("Invalid move, try again.\n");
+    		valid = FALSE;
+    	} else {
+    		game.board[x][y] = HUMAN;
+    		valid = TRUE;
+    	}
     }
     return valid;
+}
+
+int check_move(int x, int y) {
+	if (x < 0 || x > game.size || y < 0 || y > game.size){
+		printf("Invalid move, try again.\n");
+		return FALSE;
+	} else {
+		return TRUE;
+	}
 }
 
 /* Get a move from the computer. */
