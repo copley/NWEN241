@@ -18,13 +18,13 @@ int check();
 void init_game();
 int player_move();
 void computer_move();
-void print_game();
+void send_board();
 char tokenstr(int);
-void print_result();
+void send_result();
 int check_move(int, int);
 
 
-TicTacToe game;  // TicTacToe game
+TicTacToe game;  /* TicTacToe game */
 
 /**
  * TicTacToe generic game. Allows the user to specify the table isze for the game.
@@ -40,22 +40,22 @@ int main(void) {
     scanf("%d", &game.size);
     printf("Ok Sir, generating new board size: %dx%d\n", game.size, game.size);
     
-    init_game(); // initialise the board
+    init_game(); /* initialise the board */
     
     do {
-        print_game();
+        send_board();
         do {
             done = player_move();
-        } while (!done); // loop until valid move
+        } while (!done); /* loop until valid move */
         if (check() != FALSE)
-            break; // was a winner or a draw
+            break; /* was a winner or a draw */
         computer_move();
         if (check() != FALSE)
-            break; // was a winner or a draw
+            break;
     } while (TRUE);
     
-    print_result();
-    print_game(); /* show final positions */
+    send_result();
+    send_board(); /* show final positions */
     
     for (i=0; i<game.size; i++){
         free(game.board[i]);
@@ -69,17 +69,16 @@ int main(void) {
 /* Initialize the matrix. */
 void init_game() {
     int i, j;
-    // initialise the 2D array for the board, first allocate mem for colums, then allocate memory for each row
+    /* initialise the 2D array for the board, first allocate mem for colums, then allocate memory for each row */
     game.board = malloc(sizeof(int *)*game.size);
     int x = 0;
     for (; x < game.size; x++){
         game.board[x] = malloc(sizeof(int)*game.size);
     }
     
-    // now initialise it
+    /* now initialise it */
     for (i = 0; i < game.size; i++) {
         for (j = 0; j < game.size; j++) {
-            // set to empty of tokens
             game.board[i][j] = NONE;
         }
     }
@@ -116,7 +115,6 @@ int check_move(int x, int y) {
 
 /* Get a move from the computer. */
 void computer_move() {
-    //	int done = FALSE;
     int i, j, cx, cy;
     cx = cy = -1;
     for (i = 0; i < game.size; i++) {
@@ -143,10 +141,10 @@ char tokenstr(int t) {
 }
 
 /* Display the game board. */
-void print_game() {
+void send_board() {
     int x,y;
     
-    // read and print the board one character at a time
+    /* read and print the board one character at a time */
     for (y = 0; y < game.size; y++) {
         for (x = 0; x < game.size; x++) {
             printf(" %c ", tokenstr(game.board[x][y]));
@@ -164,7 +162,7 @@ int check() {
     int countX;
     int countO;
     
-    // check rows
+    /* check rows */
     for (y = 0; y < game.size; y++) {
         countX = 0;
         countO = 0;
@@ -181,7 +179,7 @@ int check() {
         }
     }
     
-    // check colums
+    /* check colums */
     for (x = 0; x < game.size; x++) {
         countX = 0;
         countO = 0;
@@ -198,7 +196,7 @@ int check() {
         }
     }
     
-    // check diagonal
+    /* check diagonal */
     countX = 0;
     countO = 0;
     for (x = 0; x < game.size; x++){
@@ -213,7 +211,7 @@ int check() {
         return TRUE;
     }
     
-    // check reverse diagonal
+    /* check reverse diagonal */
     countX = 0;
     countO = 0;
     for (x = 0; x < game.size; x++){
@@ -228,7 +226,7 @@ int check() {
         return TRUE;
     }
     
-    // test if out of space on the board
+    /* test if out of space on the board */
     count = 0;
     for (x = 0; x < game.size; x++) {
         for (y = 0; y < game.size; y++) {
@@ -241,12 +239,12 @@ int check() {
         return TRUE;
     }
     
-    // no-one and nor was there a draw
+    /* no-one and nor was there a draw */
     return FALSE;
 }
 
 /* Print the result */
-void print_result() {
+void send_result() {
     if (game.winner == HUMAN)
         printf("You won!\n");
     else if (game.winner == COMPUTER)
@@ -254,5 +252,9 @@ void print_result() {
     else
         printf("Draw :(\n");
     }
+
+
+
+
 
  

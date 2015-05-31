@@ -9,16 +9,16 @@ CC=gcc
 # The '$@' variable contatains the name of the rule calling the commands; it can be used in
 # CFLAGS so that the output file is named after the rule calling it. 
 # Wall means warnings ON
-#CFLAGS?=-Wall -std=c90 -o $@
-CFLAGS?= -o $@
+CFLAGS?=-Wall -std=c90 -o $@
+#CFLAGS?= -o $@
 
 # all is the name of a target: Make all the executables in the assignment
 all: tictactoe reader writer server
 
 #The tictactoe program itself. The variables $(CFLAGS) and $(CC) are defined above;
 # they are what should change if they need to.
-tictactoe: tictactoe.c tictactoe.h
-	$(CC) $(CFLAGS) tictactoe.c
+tictactoe: generic-tictactoe.c tictactoe.h
+	$(CC) $(CFLAGS) generic-tictactoe.c
 
 #The reader file
 reader: reader.c

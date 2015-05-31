@@ -7,9 +7,9 @@
 #include "tictactoe.h"
 
 int init_game(int serverfd);
-int check(int clientfd);
+int check_server(int clientfd);
 int player_move(int clientfd, int serverfd);
-void print_game(int clientfd, int size);
+void display_board(int clientfd, int size);
 void print_winner(int clientfd);
 
 /*
@@ -23,6 +23,7 @@ int main(void) {
 	int clientfd, serverfd, size;
 	char *clientpipe = "clientpipe";
 	char *serverpipe = "serverpipe";
+	int done;
 
 	/* create the FIFO (named pipe) and open for reading */
 	mkfifo(clientpipe, 0666);
@@ -33,47 +34,48 @@ int main(void) {
 	printf("This is the game of Tic Tac Toe.\n");
 	printf("You will be playing against the computer.\n");
 
-	int done;
-	int game_over;
-
+	/* get the board size form user and send info to server */
 	size = init_game(serverfd);
 
 	do {
-		print_game(clientfd, size);
+		display_board(clientfd, size);
 		do {
 			done = player_move(clientfd, serverfd);
 		        } while (!done);
-		        if (check() != FALSE)
+		        if (check_server(clientfd) != FALSE)
 		            break; /* was a winner or a draw */
-		        computer_move();
-		        if (check() != FALSE)
+		        if (check_server(clientfd) != FALSE)
 		            break; /* was a winner or a draw */
 		    } while (TRUE);
-//
-//		    print_result();
-//		    print_game(); /* show final positions */
-//
-//		    for (i=0; i<game.size; i++){
-//		        free(game.board[i]);
-//		    }
 
-//		    free(game.board);
+	/* display final board */
+	display_board(clientfd, size);
+	/* display winner */
+	print_winner(clientfd);
 
-//		    return 0;
-
-
-
-	// client exits loop if game is over
-	// client should continue if receives continue message
-
-	// tidy up
+	/* tidy up */
 	close(clientfd);
 	unlink(clientpipe);
 
 	return 0;
 }
 
-/* Start the game by telling server size of the board */
+/* Read board form server and print it to screen*/
+void display_board(int clientfd, int size) {
+	int x, y;
+	char value;
+
+	for (y = 0; y < size; y++) {
+		for (x = 0; x < size; x++) {
+			/* read from the pipe clientfd into */
+			read(clientfd, &value, sizeof(value));
+			printf(" %c ", value);
+		}
+		printf("\n");
+	}
+	printf("\n");
+}
+
 int init_game(int serverfd) {
 	int size;
 	printf("How big is your board?\n");
@@ -87,17 +89,14 @@ int player_move(int clientfd, int serverfd) {
     int x, y;
     int valid;
 
-	// ask the player
     printf("Enter coordinates (row,column) for your move: ");
     scanf("%d%*c%d", &y, &x);
-    x--;
-    y--;
 
-	/* send the details X,Y */
+	/* send the details X,Y to server */
     write(serverfd, &x, sizeof(x));
     write(serverfd, &y, sizeof(y));
 
-	/* check on server if is a valid move */
+	/* check from server if is a valid move */
     read(clientfd, &valid, sizeof(valid));
     if (valid == FALSE) {
     	printf("Invalid move, try again.\n");
@@ -105,29 +104,22 @@ int player_move(int clientfd, int serverfd) {
     return valid;
 }
 
-/* Display the game on the screen. */
-void print_game(int clientfd, int size) {
-	int x, y;
-	char value;
-
-	for (y = 0; y < size; y++) {
-		for (x = 0; x < size; x++) {
-			// read from the pipe clientfd into
-			read(clientfd, &value, sizeof(value));
-			printf(" %c ", value);
-		}
-		printf("\n");
-	}
-	printf("\n");
-}
-
 /* Check whether game has ended or whether computer is waiting for the next move */
-int check(int clientfd) {
-
-	return TRUE;
+int check_server(int clientfd) {
+	int check;
+	read(clientfd, &check, sizeof(check));
+	return check;
 }
 
 /* Receive the final results from the server */
 void print_winner(int clientfd) {
+	int check;
+	read(clientfd, &check, sizeof(check));
+	if (check == HUMAN)
+		printf("You won!\n");
+	else if (check == COMPUTER)
+		printf("I won!!!!\n");
+	else if (check == DRAW)
+		printf("Draw\n");
 }
 

@@ -22,10 +22,11 @@ void init_game();
 void free_game();
 int get_player_move();
 void computer_move();
-void print_game();
+void send_board();
 char tokenstr(int token);
-void print_result();
+void send_result();
 void client_continue();
+int check_move(int, int);
 
 TicTacToe game;
 
@@ -34,75 +35,63 @@ TicTacToe game;
  * @author diego
  */
 int main(void) {
-	int i, j, done;
+	int done;
 	char *clientpipe = "clientpipe";
 	char *serverpipe = "serverpipe";
-	char buffer[MAX_BUF];
 
-	// create the FIFO (named pipe) and open for reading
+	/* create the FIFO (named pipe) and open for reading */
 	mkfifo(serverpipe, 0666);
 	mkfifo(clientpipe, 0666);
-	game.serverfd = open(serverpipe, O_RDONLY); // client talks to server
-	game.clientfd = open(clientpipe, O_WRONLY); // server talks to client
+	game.serverfd = open(serverpipe, O_RDONLY);
+	game.clientfd = open(clientpipe, O_WRONLY);
 
-	printf("This is the game of Tic Tac Toe.\n");
-	printf("You will be playing against the computer.\n");
+	printf("Tic Tac Toe: server online...  waiting for client ... \n");
 
-	// wait for a client to tell us how large is the game board
 	int size;
-	read(game.serverfd, &size, sizeof(size)); /* read from the pipe into buf */
+	read(game.serverfd, &size, sizeof(size)); /* read from the pipe into buffer */
 	printf("The game board is %d by %d.\n", size, size);
 
-	// initialise the board
 	game.size = size;
-	// as for the generic solution with addition of pipes
-	// initialise the 2D array for the board, first allocate mem for colums, then allocate memory for each row
 	init_game();
 
 	do {
-	        print_game();
-	        do {
-	            done = get_player_move();
-	        } while (!done); /* loop until valid move */
-	        if (check() != FALSE) { /* check if there is a winner or run out of slots */
-	        	// sends result to client ?
-	            break; /* was a winner or a draw */
-	        }
-	        computer_move();
-	        if (check() != FALSE) {
-	            break; // was a winner or a draw
-	        }
-	    } while (TRUE);
+		send_board();
+		do {
+			done = get_player_move();
+		} while (!done); /* loop until valid move */
+		if (check() != FALSE) /* check if there is a winner or run out of slots */
+			break; /* was a winner or a draw */
+		computer_move();
+		if (check() != FALSE) {
+			break;
+		}
+	} while (TRUE);
 
-	    print_result();
-	    print_game(); /* show final positions */
+	send_board(); /* send final board */
+	send_result(); /* sends result of game to client */
 
-	    for (i=0; i<game.size; i++){
-	        free(game.board[i]);
-	    }
-
-
-	    /* clean up */
-	    free(game.board);
-	    close(game.serverfd);
-	    unlink(serverpipe);
-	    return 0;
+	/* clean up */
+	free(game.board);
+	close(game.serverfd);
+	unlink(serverpipe);
+	return 0;
 }
 
 /* Initialize the matrix. */
 void init_game() {
 	int i, j;
-	// initialise the 2D array for the board, first allocate mem for colums, then allocate memory for each row
+	game.winner = NONE;
+	/* initialise the 2D array for the board, first allocate mem for colums, then allocate memory for each row */
 	game.board = malloc(sizeof(int *) * game.size);
 	int x = 0;
 	for (; x < game.size; x++) {
 		game.board[x] = malloc(sizeof(int) * game.size);
 	}
 
-	// now initialise it
+	/* now initialise it */
 	for (i = 0; i < game.size; i++)
 		for (j = 0; j < game.size; j++)
-			// set to empty of tokens
+			/* set to empty of tokens */
 			game.board[i][j] = NONE;
 }
 
@@ -117,31 +106,56 @@ void free_game() {
 
 /* Get a player's move. */
 int get_player_move() {
-	int valid;
-	int x,y;
+	int x, y;
+	int valid = FALSE;
+
 	read(game.serverfd, &x, sizeof(x)); /* read x */
 	read(game.serverfd, &y, sizeof(y)); /* read x */
 
 	/* check if valid move or not */
-    if (game.board[x][y] != NONE) {
-        printf("Invalid move, try again.\n");
-        valid = FALSE;
-    } else {
-        game.board[x][y] = HUMAN;
-        valid = TRUE;
-    }
+	if (check_move(x, y)) {
+		x--;
+		y--;
+		if (game.board[x][y] != NONE) {
+			printf("Invalid move, try again.\n");
+			valid = FALSE;
+		} else {
+			game.board[x][y] = HUMAN;
+			valid = TRUE;
+		}
+	}
 
 	/* return result to client */
-    write(game.clientfd, &valid, sizeof(valid));
+	write(game.clientfd, &valid, sizeof(valid));
 	return valid;
 }
 
-/* Get a move from the computer. */
-/* Return true (not 0) if can move */
-/* Return false () if cannot move */
-void computer_move() {
-	// as for your generic solution
+int check_move(int x, int y) {
+	if (x < 0 || x > game.size || y < 0 || y > game.size) {
+		printf("Invalid move, try again.\n");
+		return FALSE;
+	} else {
+		return TRUE;
+	}
 }
+
+/* Get a move from the computer. */
+void computer_move() {
+	    int i, j, cx, cy;
+	    cx = cy = -1;
+	    for (i = 0; i < game.size; i++) {
+	        for (j = 0; j < game.size; j++)
+	            if (game.board[i][j] == NONE) {
+	                cx = i;
+	                cy = j;
+	                break;
+	            }
+	        if (cx != -1) {
+	            game.board[cx][cy] = COMPUTER;
+	            break;
+	        }
+	    }
+	}
 
 /* Map the board token ID into a character */
 char tokenstr(int t) {
@@ -153,17 +167,17 @@ char tokenstr(int t) {
 }
 
 /* Send the game result to the client */
-void print_game() {
-	int x,y;
+void send_board() {
+	int x, y;
 	char c;
-	    /* read and print the board one character at a time */
-	    for (y = 0; y < game.size; y++) {
-	        for (x = 0; x < game.size; x++) {
-	        	c = tokenstr(game.board[x][y]);
-	            write(game.clientfd, &c, sizeof(c));
-	        }
-	    }
+	/* write the board one character at a time */
+	for (y = 0; y < game.size; y++) {
+		for (x = 0; x < game.size; x++) {
+			c = tokenstr(game.board[x][y]);
+			write(game.clientfd, &c, sizeof(c));
+		}
 	}
+}
 
 /* See if there is a winner. */
 int check() {
@@ -172,7 +186,7 @@ int check() {
 	int countX;
 	int countO;
 
-	// check rows
+	/* check rows */
 	for (y = 0; y < game.size; y++) {
 		countX = 0;
 		countO = 0;
@@ -184,14 +198,16 @@ int check() {
 		}
 		if (countX == game.size) {
 			game.winner = -1;
+			write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
 			return TRUE;
 		} else if (countO == game.size) {
 			game.winner = 1;
+			write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
 			return TRUE;
 		}
 	}
 
-	// check colums
+	/* check colums */
 	for (x = 0; x < game.size; x++) {
 		countX = 0;
 		countO = 0;
@@ -203,14 +219,16 @@ int check() {
 		}
 		if (countX == game.size) {
 			game.winner = -1;
+			write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
 			return TRUE;
 		} else if (countO == game.size) {
 			game.winner = 1;
+			write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
 			return TRUE;
 		}
 	}
 
-	// check diagonal
+	/* check diagonal */
 	countX = 0;
 	countO = 0;
 	for (x = 0; x < game.size; x++) {
@@ -221,13 +239,15 @@ int check() {
 	}
 	if (countX == game.size) {
 		game.winner = -1;
+		write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
 		return TRUE;
 	} else if (countO == game.size) {
 		game.winner = 1;
+		write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
 		return TRUE;
 	}
 
-	// check reverse diagonal
+	/* check reverse diagonal */
 	countX = 0;
 	countO = 0;
 	for (x = 0; x < game.size; x++) {
@@ -238,13 +258,15 @@ int check() {
 	}
 	if (countX == game.size) {
 		game.winner = -1;
+		write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
 		return TRUE;
 	} else if (countO == game.size) {
 		game.winner = 1;
+		write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
 		return TRUE;
 	}
 
-	// test if out of space on the board
+	/* test if out of space on the board */
 	count = 0;
 	for (x = 0; x < game.size; x++) {
 		for (y = 0; y < game.size; y++) {
@@ -254,27 +276,20 @@ int check() {
 	}
 	if (count == 0) {
 		game.winner = DRAW;
+		write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
 		return TRUE;
 	}
 
-	// no-one and nor was there a draw
+	write(game.clientfd, &FALSE, sizeof(FALSE)); /* sends message back to client */
 	return FALSE;
 }
 
 /* Tell the client that game has ended and the result of the game */
-void print_result() {
-	if (game.winner == HUMAN)
-		printf("You won!\n");
-	else if (game.winner == COMPUTER)
-		printf("I won!!!!\n");
-	else
-		printf("Draw :(\n");
-	/* tell the client the winner */
+void send_result() {
 	write(game.clientfd, &game.winner, sizeof(game.winner));
 }
 
 /* Tell the client to continue */
 void client_continue() {
-	/* tell the client that it should continue playing */
 	write(game.clientfd, &NONE, sizeof(NONE));
 }
