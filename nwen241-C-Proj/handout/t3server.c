@@ -7,6 +7,9 @@
 #include <unistd.h>
 #include "tictactoe.h"
 
+int size; // aded to make mute the error checking
+int valid; // aded to make mute the error checking
+
 typedef struct TicTacToe
 {
   int size;      // this is the size of the game board

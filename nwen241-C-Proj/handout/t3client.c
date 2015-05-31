@@ -6,6 +6,9 @@
 #include <unistd.h>
 #include "tictactoe.h"
 
+int size; // aded to make mute the error checking
+int valid; // aded to make mute the error checking
+
 int init_game(int serverfd);
 int check(int clientfd);
 int player_move(int clientfd, int serverfd);
