@@ -1,0 +1,113 @@
+\documentclass[11pt, oneside]{article} % letter, article, report
+\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\usepackage{listings}
+\usepackage{color}
+\geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
+\usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
+								% TeX will automatically convert eps --> pdf in pdflatex		
+\usepackage{amssymb}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\definecolor{black}{rgb}{0,0,0}
+
+
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{black},
+  keywordstyle=\color{black},
+  commentstyle=\color{black},
+  stringstyle=\color{black},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\title{Nwen 241 C Lab Report}
+\author{Diego Trazzi}
+%\date{}							% Activate to display a given date or no date
+
+
+
+
+\begin{document}
+\maketitle
+In this assignment I have learned to pass by reference across methods and the wonderful use of pipes. I really enjoyed learning about pipes, and, if my understanding is correct, pipes are similar to sockets, but for networks, so I hope in future years to learn more about pipes and sockets to make programs more scalable and modular.
+\section{Code implementation}
+All three parts of the assignment are complete and follow the prototypes provided. I truly hope the code is meeting all the requirements, because I have now re-written it twice: a first version was implemented with the prototypes and logic as I though would make sense for such program, and a second version was then re-written to meet the handout requirements after talking to Ian.
+\section{Valgrind}
+To test for any memory leek I have used Valgrind to check is the memory allocation was freed before terminating the program. Here is an output showing the commands and the terminal output: 
+\begin{lstlisting}
+GENERIC
+valgrind --tool=memcheck ./tictactoe
+
+==27648== Memcheck, a memory error detector
+==27648== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==27648== Using Valgrind-3.10.0 and LibVEX; rerun with -h for copyright info
+==27648== Command: ./tictactoe
+==27648== 
+This is the game of Tic Tac Toe.
+You will be playing against the computer.
+How big is your board?
+...
+==27648== 
+==27648== HEAP SUMMARY:
+==27648==     in use at exit: 0 bytes in 0 blocks
+==27648==   total heap usage: 5 allocs, 5 frees, 96 bytes allocated
+==27648== 
+==27648== All heap blocks were freed -- no leaks are possible
+==27648== 
+==27648== For counts of detected and suppressed errors, rerun with: -v
+==27648== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
+SERVER
+valgrind --tool=memcheck ./t3server
+
+valgrind --tool=memcheck ./t3server
+==27677== Memcheck, a memory error detector
+==27677== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==27677== Using Valgrind-3.10.0 and LibVEX; rerun with -h for copyright info
+==27677== Command: ./t3server
+==27677== 
+Tic Tac Toe: server online...  waiting for client ... 
+...
+==27677== 
+==27677== HEAP SUMMARY:
+==27677==     in use at exit: 0 bytes in 0 blocks
+==27677==   total heap usage: 5 allocs, 5 frees, 96 bytes allocated
+==27677== 
+==27677== All heap blocks were freed -- no leaks are possible
+==27677== 
+==27677== For counts of detected and suppressed errors, rerun with: -v
+==27677== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+(16:31) trazzidieg@taj-mahal: /u/students/trazzidieg/Downloads > 
+
+CLIENT
+valgrind --tool=memcheck ./t3client
+
+==27679== Memcheck, a memory error detector
+==27679== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==27679== Using Valgrind-3.10.0 and LibVEX; rerun with -h for copyright info
+==27679== Command: ./t3client
+==27679== 
+How big is your board?
+
+...
+You won!
+==27679== 
+==27679== HEAP SUMMARY:
+==27679==     in use at exit: 0 bytes in 0 blocks
+==27679==   total heap usage: 0 allocs, 0 frees, 0 bytes allocated
+==27679== 
+==27679== All heap blocks were freed -- no leaks are possible
+==27679== 
+==27679== For counts of detected and suppressed errors, rerun with: -v
+==27679== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)\end{lstlisting}
+\end{document}

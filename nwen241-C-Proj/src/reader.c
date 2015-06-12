@@ -2,14 +2,16 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include "tictactoe.h"
 
-#define MAX_BUF 1024
 
 int main()
 {
     int fdW;
     char * fifoW = "fifoW";
-    char buf[MAX_BUF]; /* define max buffer size */
+    char * fifoW = "fifoR";
+    /* define max buffer size */
+    char buf[MAX_BUF];
     
     /* open, read, and display the message from the FIFO */
     do {

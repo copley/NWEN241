@@ -1,3 +1,5 @@
+#define MAX_BUF 1024
+
 /* Useful defines */
 const int TRUE = 1;
 const int FALSE = 0;

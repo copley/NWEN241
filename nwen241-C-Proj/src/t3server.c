@@ -7,131 +7,131 @@
 #include <unistd.h>
 #include "tictactoe.h"
 
-#define MAX_BUF 1024
+int size; /* aded to make mute the error checking */
+int valid; /* aded to make mute the error checking */
 
 typedef struct TicTacToe {
 	int size;
 	int **board;
 	int winner;
-	int clientfd;
-	int serverfd;
 } TicTacToe;
 
-int check();
-void init_game();
-void free_game();
-int get_player_move();
-void computer_move();
-void send_board();
+int check(TicTacToe* game);
+void init_game(TicTacToe* game, int size);
+void free_game(TicTacToe *game);
+int player_move(int serverfd, int clientfd, TicTacToe* game);
+void computer_move(TicTacToe* game);
+void print_game(int clientfd, TicTacToe game);
 char tokenstr(int token);
-void send_result();
-void client_continue();
-int check_move(int, int);
+void print_result(int clientfd, TicTacToe game);
+void client_continue(int clientfd);
+int check_move(TicTacToe* game, int, int);
+void client_continue(int clientfd);
 
-TicTacToe game;
-
-/**
- * Server program, which handles the logic of the game and is responsible for checking if there is a winner or if the game is a draw
- * @author diego
- */
 int main(void) {
-	int done;
+	int clientfd, serverfd, done, size = 0;
 	char *clientpipe = "clientpipe";
 	char *serverpipe = "serverpipe";
+	TicTacToe game;
 
 	/* create the FIFO (named pipe) and open for reading */
 	mkfifo(serverpipe, 0666);
 	mkfifo(clientpipe, 0666);
-	game.serverfd = open(serverpipe, O_RDONLY);
-	game.clientfd = open(clientpipe, O_WRONLY);
+	serverfd = open(serverpipe, O_RDONLY);
+	clientfd = open(clientpipe, O_WRONLY);
 
 	printf("Tic Tac Toe: server online...  waiting for client ... \n");
+	read(serverfd, &size, sizeof(size)); /* read from the pipe into buffer */
+	printf("The game is %d by %d.\n", size, size);
+	printf("Initialising game ....\n");
 
-	int size;
-	read(game.serverfd, &size, sizeof(size)); /* read from the pipe into buffer */
-	printf("The game board is %d by %d.\n", size, size);
-
-	game.size = size;
-	init_game();
-
+	init_game(&game, size);
 	do {
-		send_board();
+		print_game(clientfd, game);
 		do {
-			done = get_player_move();
+			done = player_move(serverfd, clientfd, &game);
 		} while (!done); /* loop until valid move */
-		if (check() != FALSE) /* check if there is a winner or run out of slots */
+		if (check(&game) != FALSE) { /* check if there is a winner or run out of slots */
+			write(clientfd, &TRUE, sizeof(TRUE));
 			break; /* was a winner or a draw */
-		computer_move();
-		if (check() != FALSE) {
+		}
+		computer_move(&game);
+		if (check(&game) != FALSE) {
+			write(clientfd, &TRUE, sizeof(TRUE));
 			break;
 		}
+		write(clientfd, &FALSE, sizeof(FALSE));
 	} while (TRUE);
 
-	send_board(); /* send final board */
-	send_result(); /* sends result of game to client */
+	/* send final board and print results*/
+	print_game(clientfd, game);
+	print_result(clientfd, game);
 
-	/* clean up */
-	free(game.board);
-	close(game.serverfd);
+	/* free up memory allocations */
+	free_game(&game);
+	close(serverfd);
 	unlink(serverpipe);
 	return 0;
 }
 
 /* Initialize the matrix. */
-void init_game() {
+void init_game(TicTacToe* game, int size) {
 	int i, j;
-	game.winner = NONE;
-	/* initialise the 2D array for the board, first allocate mem for colums, then allocate memory for each row */
-	game.board = malloc(sizeof(int *) * game.size);
+	game->winner = NONE;
+	game->size = size;
+	/* initialise the 2D array for the board, first allocate
+	 * mem for colums, then allocate memory for each row */
+	game->board = malloc(sizeof(int *) * size);
 	int x = 0;
-	for (; x < game.size; x++) {
-		game.board[x] = malloc(sizeof(int) * game.size);
+	for (; x < size; x++) {
+		game->board[x] = malloc(sizeof(int) * size);
 	}
-
 	/* now initialise it */
-	for (i = 0; i < game.size; i++)
-		for (j = 0; j < game.size; j++)
+	for (i = 0; i < size; i++) {
+		for (j = 0; j < size; j++) {
 			/* set to empty of tokens */
-			game.board[i][j] = NONE;
+			game->board[i][j] = NONE;
+		}
+	}
 }
 
 /* Deallocate the dynamically allocated memory */
-void free_game() {
+void free_game(TicTacToe* game) {
 	int i;
-	for (i = 0; i < game.size; i++) {
-		free(game.board[i]);
+	for (i = 0; i < game->size; i++) {
+		free(game->board[i]);
 	}
-	free(game.board);
+	free(game->board);
 }
 
 /* Get a player's move. */
-int get_player_move() {
+int player_move(int serverfd, int clientfd, TicTacToe* game) {
 	int x, y;
 	int valid = FALSE;
+	read(serverfd, &x, sizeof(x)); /* read x */
+	read(serverfd, &y, sizeof(y)); /* read x */
 
-	read(game.serverfd, &x, sizeof(x)); /* read x */
-	read(game.serverfd, &y, sizeof(y)); /* read x */
-
+	printf("Receiving x,y: %d %d\n", x, y);
 	/* check if valid move or not */
-	if (check_move(x, y)) {
+	if (check_move(game, x, y)) {
 		x--;
 		y--;
-		if (game.board[x][y] != NONE) {
+		if (game->board[x][y] != NONE) {
 			printf("Invalid move, try again.\n");
 			valid = FALSE;
 		} else {
-			game.board[x][y] = HUMAN;
+			game->board[x][y] = HUMAN;
 			valid = TRUE;
 		}
 	}
 
 	/* return result to client */
-	write(game.clientfd, &valid, sizeof(valid));
+	write(clientfd, &valid, sizeof(valid));
 	return valid;
 }
 
-int check_move(int x, int y) {
-	if (x < 0 || x > game.size || y < 0 || y > game.size) {
+int check_move(TicTacToe* game, int x, int y) {
+	if (x < 0 || x > game->size || y < 0 || y > game->size) {
 		printf("Invalid move, try again.\n");
 		return FALSE;
 	} else {
@@ -140,22 +140,24 @@ int check_move(int x, int y) {
 }
 
 /* Get a move from the computer. */
-void computer_move() {
-	    int i, j, cx, cy;
-	    cx = cy = -1;
-	    for (i = 0; i < game.size; i++) {
-	        for (j = 0; j < game.size; j++)
-	            if (game.board[i][j] == NONE) {
-	                cx = i;
-	                cy = j;
-	                break;
-	            }
-	        if (cx != -1) {
-	            game.board[cx][cy] = COMPUTER;
-	            break;
-	        }
-	    }
+/* Return true (not 0) if can move */
+/* Return false () if cannot move */
+void computer_move(TicTacToe* game) {
+	int i, j, cx, cy;
+	cx = cy = -1;
+	for (i = 0; i < game->size; i++) {
+		for (j = 0; j < game->size; j++)
+			if (game->board[i][j] == NONE) {
+				cx = i;
+				cy = j;
+				break;
+			}
+		if (cx != -1) {
+			game->board[cx][cy] = COMPUTER;
+			break;
+		}
 	}
+}
 
 /* Map the board token ID into a character */
 char tokenstr(int t) {
@@ -167,63 +169,64 @@ char tokenstr(int t) {
 }
 
 /* Send the game result to the client */
-void send_board() {
+/* Do it a character at a time -- easy! */
+void print_game(int clientfd, TicTacToe game) {
 	int x, y;
 	char c;
 	/* write the board one character at a time */
-	for (y = 0; y < game.size; y++) {
-		for (x = 0; x < game.size; x++) {
+	for (x = 0; x < game.size; x++) {
+		for (y = 0; y < game.size; y++) {
 			c = tokenstr(game.board[x][y]);
-			write(game.clientfd, &c, sizeof(c));
+			write(clientfd, &c, sizeof(c));
+			printf(" %c ", c);
 		}
+		printf("\n");
 	}
+	printf("\n");
 }
 
 /* See if there is a winner. */
-int check() {
+/* return true (0) if so otherwise false */
+int check(TicTacToe* game) {
 	int x, y;
 	int count;
 	int countX;
 	int countO;
 
 	/* check rows */
-	for (y = 0; y < game.size; y++) {
+	for (y = 0; y < game->size; y++) {
 		countX = 0;
 		countO = 0;
-		for (x = 0; x < game.size; x++) {
-			if (game.board[x][y] == -1)
+		for (x = 0; x < game->size; x++) {
+			if (game->board[x][y] == -1)
 				countX++;
-			else if (game.board[x][y] == 1)
+			else if (game->board[x][y] == 1)
 				countO++;
 		}
-		if (countX == game.size) {
-			game.winner = -1;
-			write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
+		if (countX == game->size) {
+			game->winner = -1;
 			return TRUE;
-		} else if (countO == game.size) {
-			game.winner = 1;
-			write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
+		} else if (countO == game->size) {
+			game->winner = 1;
 			return TRUE;
 		}
 	}
 
 	/* check colums */
-	for (x = 0; x < game.size; x++) {
+	for (x = 0; x < game->size; x++) {
 		countX = 0;
 		countO = 0;
-		for (y = 0; y < game.size; y++) {
-			if (game.board[x][y] == -1)
+		for (y = 0; y < game->size; y++) {
+			if (game->board[x][y] == -1)
 				countX++;
-			else if (game.board[x][y] == 1)
+			else if (game->board[x][y] == 1)
 				countO++;
 		}
-		if (countX == game.size) {
-			game.winner = -1;
-			write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
+		if (countX == game->size) {
+			game->winner = -1;
 			return TRUE;
-		} else if (countO == game.size) {
-			game.winner = 1;
-			write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
+		} else if (countO == game->size) {
+			game->winner = 1;
 			return TRUE;
 		}
 	}
@@ -231,65 +234,61 @@ int check() {
 	/* check diagonal */
 	countX = 0;
 	countO = 0;
-	for (x = 0; x < game.size; x++) {
-		if (game.board[x][x] == -1)
+	for (x = 0; x < game->size; x++) {
+		if (game->board[x][x] == -1)
 			countX++;
-		else if (game.board[x][x] == 1)
+		else if (game->board[x][x] == 1)
 			countO++;
 	}
-	if (countX == game.size) {
-		game.winner = -1;
-		write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
+	if (countX == game->size) {
+		game->winner = -1;
 		return TRUE;
-	} else if (countO == game.size) {
-		game.winner = 1;
-		write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
+	} else if (countO == game->size) {
+		game->winner = 1;
 		return TRUE;
 	}
 
 	/* check reverse diagonal */
 	countX = 0;
 	countO = 0;
-	for (x = 0; x < game.size; x++) {
-		if (game.board[game.size - 1 - x][x] == -1)
+	for (x = 0; x < game->size; x++) {
+		if (game->board[game->size - 1 - x][x] == -1)
 			countX++;
-		else if (game.board[game.size - 1 - x][x] == 1)
+		else if (game->board[game->size - 1 - x][x] == 1)
 			countO++;
 	}
-	if (countX == game.size) {
-		game.winner = -1;
-		write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
+	if (countX == game->size) {
+		game->winner = -1;
 		return TRUE;
-	} else if (countO == game.size) {
-		game.winner = 1;
-		write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
+	} else if (countO == game->size) {
+		game->winner = 1;
 		return TRUE;
 	}
 
 	/* test if out of space on the board */
 	count = 0;
-	for (x = 0; x < game.size; x++) {
-		for (y = 0; y < game.size; y++) {
-			if (game.board[x][y] == NONE)
+	for (x = 0; x < game->size; x++) {
+		for (y = 0; y < game->size; y++) {
+			if (game->board[x][y] == NONE)
 				count++;
 		}
 	}
 	if (count == 0) {
-		game.winner = DRAW;
-		write(game.clientfd, &game.winner, sizeof(game.winner)); /* sends message back to client */
+		game->winner = DRAW;
 		return TRUE;
 	}
 
-	write(game.clientfd, &FALSE, sizeof(FALSE)); /* sends message back to client */
+	/* no-one and nor was there a draw */
+
 	return FALSE;
 }
 
 /* Tell the client that game has ended and the result of the game */
-void send_result() {
-	write(game.clientfd, &game.winner, sizeof(game.winner));
+void print_result(int clientfd, TicTacToe game) {
+	write(clientfd, &game.winner, sizeof(NONE));
 }
 
 /* Tell the client to continue */
-void client_continue() {
-	write(game.clientfd, &NONE, sizeof(NONE));
+void client_continue(int clientfd) {
+	write(clientfd, &NONE, sizeof(NONE));
 }

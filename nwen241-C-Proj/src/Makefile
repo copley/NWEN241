@@ -9,7 +9,7 @@ CC=gcc
 # The '$@' variable contatains the name of the rule calling the commands; it can be used in
 # CFLAGS so that the output file is named after the rule calling it. 
 # Wall means warnings ON
-CFLAGS?=-Wall -std=c90 -o $@
+CFLAGS?=-Wall -std=c89 -o $@
 #CFLAGS?= -o $@
 
 # all is the name of a target: Make all the executables in the assignment

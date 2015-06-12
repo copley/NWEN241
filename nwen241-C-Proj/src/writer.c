@@ -3,8 +3,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
+#include "tictactoe.h"
 
-#define MAX_BUF 1024
+/* IS IT OK TO USE THE SAME PIPE ? */
 
 int main()
 {
