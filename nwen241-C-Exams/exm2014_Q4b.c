@@ -3,9 +3,11 @@
 void bitwise_swap(int*, int*);
 
 void bitwise_swap(int* a, int* b){
+	if (a!=b){
 	*a ^= *b;
 	*b ^= *a;
 	*a ^= *b;
+}
 }
 
 int main(void){

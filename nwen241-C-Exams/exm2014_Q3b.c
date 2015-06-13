@@ -10,7 +10,7 @@ typedef struct node { // creates a struct names struct
 	struct node *next; // and a pointer to next node
 } Node; // then renames the structure to Node
 
-typedef Node* ptrNode; // creates a pointed to node to use it head/tail
+typedef Node *ptrNode; // creates a pointed to node to use it head/tail
 
 typedef struct queue // creates a struct contrianing front/back and count
 {
@@ -21,19 +21,18 @@ typedef struct queue // creates a struct contrianing front/back and count
 
 void enqueue(Data d, Queue *q){
 
-	// add a new node at the back
-	q->back->next = malloc(Node_Size);
-	q->back->data = d;
-	q->back->next = NULL;
-	q->back = q->back->next;
 	if (q->cnt == 0){
 		q->cnt = 1;
 		q->front = q->back;
 	} else {
-		q->cnt++;		
+		ptrNode n = malloc(sizeof(Node));
+		n->data = d;
+		n->next = NULL;
+		q->back->next = n;
+		q->back = n;
+		(q->cnt)++;	
 	}
 }
-
 
 Data dequeue(Queue *);
 

@@ -2,19 +2,16 @@
 
 void func(char *);
 
-void func(char *str){
-	char *tmp = str;
-	int size = sizeof(str)/sizeof(char);
-	int i;
-
-	for (i=0; i<size; i++){
-		printf("%s",tmp);
-		tmp++;
+void func(char *c){
+	while(*c != '\0'){
+		printf("%s",c);
+		c++;
 	}
 }
 
 int main(void){
-	func("Diego\n");
+	func("Diego");
 }
+
 
 
