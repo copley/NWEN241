@@ -53,6 +53,7 @@ void printlist(Node *n){
 	printf("Node: %c\n",n->data);
 }
 
+
 int main(void){
 	ptrNode head = createlisti("Diego");
 	printlist(head);

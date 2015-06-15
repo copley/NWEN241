@@ -1,8 +1,8 @@
 #include <stdio.h>
 
 int main(void){
-	int n,i;
-	int m = 1 << 31;
+	unsigned int n,i;
+	unsigned int m = 1 << 31;
 	printf("Insert a number to convert in binary ");
 	scanf("%d",&n);
 
