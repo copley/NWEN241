@@ -2,11 +2,10 @@
 #include <string.h>
 
 void swapChar(char x[], char y[]){
-	int size = strlen(x);
+	int size = strlen(x)+1;
 	int i;
 
 	for (i=0; i<size; i++){
-	printf("----");
 		if (x[i] != y[i]){
 			x[i] ^= y[i];
 			y[i] ^= x[i];
