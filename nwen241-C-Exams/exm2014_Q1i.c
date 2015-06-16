@@ -6,6 +6,13 @@ char c;
 char *p;
 } int_char;
 
+typedef struct {
+	int age;
+	char gender;
+	char *name;
+} Person;
+
 int main(void){
-	printf("%d",sizeof(int_char));
+	printf("%d\n",sizeof(Person));
+	printf("%d\n",sizeof(int_char));
 }
