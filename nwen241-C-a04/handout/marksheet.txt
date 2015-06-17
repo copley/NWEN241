@@ -1,0 +1,22 @@
+NWEN241 C Assignment 2
+
+Student: trazzidieg
+
+Question 1 (out of 10): 10
+Question 2 (out of 5): 5
+Question 3 (out of 5): 4
+Question 4 (out of 5): 5
+ 
+Total Marks (out of 25): 24
+
+Comments
+----------------------------------------------------------------------------------
+
+Q1, Q2 and Q4
+  Great work!
+  
+Q3
+  There is no check that the strings match if string1 is shorter than string2
+  ie
+    "run" and "running" will return true
+  -1 mark

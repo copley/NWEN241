@@ -1,0 +1,22 @@
+ASSIGNMENT 2: NWEN241 : 2015
+
+Student ID:300338937
+Student Name:Trazzi, Diego
+----------------------------------------
+CORRECTNESS:
+  Add Vectors: passed 20/20 cases = 1.00, x 35 marks = 35.00 marks.
+  Print Frequency: passed 12/12 cases = 1.00, x 35 marks = 35.00 marks.
+  Verbing: passed 11/11 cases = 1.00, x 20 marks = 20.00 marks.
+  Verbing File: passed 5/5 cases = 1.00, x 10 marks = 10.00 marks.
+  Verbing File Bonus: passed 1/1 cases = 1.00, x 2 marks = 2.00 marks.
+
+TOTAL = 102.00 out of 100 possible marks.
+----------------------------------------
+CODE STYLE/COMMENTS:
+
+Nice to see someone using the format function to format strings!
+Great use of comments but try to use python_naming_conventions for variables insteadOfCamelCase.
+
+LETTER GRADE A
+
+----------------------------------------

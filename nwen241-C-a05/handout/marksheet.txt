@@ -1,0 +1,23 @@
+NWEN241 C Assignment 3
+
+Student: trazzidieg
+
+Question 1 (out of 4): 4
+Question 2 (out of 6): 6
+Question 3 (out of 6): 6
+Question 4 (out of 6): 6
+Question 5 (out of 7): 7
+Question 6 (out of 5): 5
+Question 7 (out of 5): 0
+Question 8 (out of 11):9
+ 
+Total Marks (out of 50): 43
+
+Comments
+Please provide your answers in C files next time. It's really annoying as a marker to copy code over to a text editor for each question. Also I could not copy the programs properly and thus I couldn't run them.
+Q4 - int *(*p)(int int) works too.
+Q8 - You are supposed to provide the average for each student, not overall average
+
+----------------------------------------------------------------------------------
+
+

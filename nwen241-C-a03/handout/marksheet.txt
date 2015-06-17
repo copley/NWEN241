@@ -1,0 +1,16 @@
+NWEN241 C Assignment 1
+
+Student: trazzidieg
+
+Question 1 (out of 4): 4
+Question 2 (out of 3): 2
+Question 3 (out of 6): 6
+Question 4 (out of 6): 6
+Question 5 (out of 6): 6
+
+Total Marks (out of 25): 24
+
+Comments: The presentation was nice, for qn 2 more information on pointers was required to get full marks
+----------------------------------------------------------------------------------
+
+
